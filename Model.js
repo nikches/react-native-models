@@ -1,4 +1,4 @@
-import Storage from "./NullStorage";
+import { AsyncStorage } from "react-native";
 
 export default class Model {
     static get _classNameKey() {
