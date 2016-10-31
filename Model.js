@@ -1,8 +1,44 @@
 import { AsyncStorage } from "react-native";
 
+/* TODO Use Symbol in enums.           */
 export default class Model {
     static get _classNameKey() {
         return "__REACT_NATIVE_MODELS_CLASS_NAME__";
+    }
+
+    store(key) {
+        if (typeof(key) !== "string") {
+            key = this.constructor.name;
+        }
+
+        return new Promise((resolve, reject) => {
+            const data = this.serialize();
+
+            AsyncStorage.setItem(key, data).then(() => {
+                resolve();
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    }
+
+    static restore(key) {
+        if (typeof(key) !== "string") {
+            key = this.name;
+        }
+
+        return new Promise((resolve, reject) => {
+            AsyncStorage.getItem(key).then((data) => {
+                if (data === null) {
+                    resolve(null);
+                } else {
+                    const deserialized = Model.deserialize(data);
+                    resolve(deserialized);
+                }
+            }).catch((error) => {
+                reject(error);
+            });
+        });
     }
 
     /**
@@ -27,7 +63,7 @@ export default class Model {
 
         const data = Object.create(null);
         for (const key in object) {
-            if (object.hasOwnProperty(key) === false) {
+            if (Object.prototype.hasOwnProperty.apply(object, [key]) === false) {
                 continue;
             }
 
@@ -76,7 +112,7 @@ export default class Model {
         const data = container["data"];
 
         for (const key in data) {
-            if (data.hasOwnProperty(key) === false) {
+            if (Object.prototype.hasOwnProperty.apply(data, [key]) === false) {
                 continue;
             }
 
@@ -136,15 +172,27 @@ export default class Model {
             return scalar;
         }
 
-        if (action === "serialization" && scalar instanceof Model) {
-            return Model._serialize(scalar);
+        if (action === "serialization") {
+            if (scalar instanceof Model) {
+                return Model._serialize(scalar);
+            }
+
+            if (scalar instanceof Date) {
+                throw new Error("Serialization of Date objects not supported.");
+            }
+
+            if (scalar instanceof RegExp) {
+                throw new Error("Serialization of RegExp objects not supported.");
+            }
         }
 
-        if (action === "deserialization" && scalar[Model._classNameKey]) {
-            return Model._deserialize(scalar);
+        if (action === "deserialization") {
+            if (scalar[Model._classNameKey]) {
+                return Model._deserialize(scalar);
+            }
         }
 
-        return scalar;
+        return scalar; /* Number, Boolean, String */
     }
 
     /**
@@ -171,7 +219,7 @@ export default class Model {
             data = Object.create(null);
 
             for (const key in iterable) {
-                if (iterable.hasOwnProperty(key) === false) {
+                if (Object.prototype.hasOwnProperty.apply(iterable, [key]) === false) {
                     continue;
                 }
 
