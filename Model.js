@@ -1,11 +1,78 @@
 import { AsyncStorage } from "react-native";
 
-/* TODO Use Symbol in enums.           */
 export default class Model {
     static get _classNameKey() {
         return "__REACT_NATIVE_MODELS_CLASS_NAME__";
     }
 
+    /**
+     * Create private properties and getProperty/setProperty methods for them.
+     *
+     * @param {object} properties propertyName: propertyType
+     * @returns {Model}
+     */
+    constructor(properties) {
+        for (const propertyName in properties) {
+            if (Object.prototype.hasOwnProperty.apply(properties, [propertyName]) === false) {
+                continue;
+            }
+
+            if (propertyName.charAt(0) === "_") {
+                throw new Error("Properties beginning at underscore not supported.");
+            }
+
+            const propertyType = properties[propertyName];
+            const privatePropertyName = "_" + propertyName;
+            const propertyNameCapitalize =
+                propertyName.charAt(0).toUpperCase() +
+                propertyName.slice(1);
+
+            this[privatePropertyName] = null;
+            this["set" + propertyNameCapitalize] = (value) => {
+                if (Model._checkType(value, propertyType) === false) {
+                    throw new TypeError(`${propertyName} is ${propertyType}`);
+                }
+
+                this[privatePropertyName] = value;
+            };
+
+            this["get" + propertyNameCapitalize] = () => {
+                return this[privatePropertyName];
+            };
+        }
+    }
+
+    /**
+     * Check type of value and return true if his matches with requiredType.
+     *
+     * @static
+     * @param {any} value
+     * @param {string} requiredType
+     * @returns {boolean}
+     */
+    static _checkType(value, requiredType) {
+        requiredType = requiredType.toLowerCase();
+
+        const matches = Object
+            .prototype
+            .toString
+            .apply(value)
+            .toLowerCase()
+            .match(/\[object (.*)\]/);
+
+        if (matches !== null && matches[1] === requiredType) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Write self in AsyncStorage.
+     *
+     * @param {string} key AsynStorage key.
+     * @return {Promise}
+     */
     store(key) {
         if (typeof(key) !== "string") {
             key = this.constructor.name;
@@ -22,6 +89,13 @@ export default class Model {
         });
     }
 
+    /**
+     * Read object from async storage.
+     *
+     * @static
+     * @param {string} key AsyncStorage key
+     * @returns {Promise}
+     */
     static restore(key) {
         if (typeof(key) !== "string") {
             key = this.name;
@@ -64,6 +138,10 @@ export default class Model {
         const data = Object.create(null);
         for (const key in object) {
             if (Object.prototype.hasOwnProperty.apply(object, [key]) === false) {
+                continue;
+            }
+
+            if (key.charAt(0) !== "_") {
                 continue;
             }
 
