@@ -31,7 +31,7 @@ class MyModel extends Model {
     this.setB("bar");
     
     const a = this.getA(); // a === 1
-    const b = this.getB(); // b === "bar"
+    const b = this.getB(); // b === "foo"
     
     try {
       this.setA("1");
