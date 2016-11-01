@@ -23,7 +23,7 @@ class MyModel extends Model {
     // this._b === null
     
     this._a = a; // this._a === 0
-    this._b = b; // this._b === "str"
+    this._b = b; // this._b === "foo"
   }
   
   test() {
@@ -31,7 +31,7 @@ class MyModel extends Model {
     this.setB("bar");
     
     const a = this.getA(); // a === 1
-    const b = this.getB(); // b === "foo"
+    const b = this.getB(); // b === "bar"
     
     try {
       this.setA("1");
