@@ -4,8 +4,7 @@
     "description": "Implementation of the models for React Native. Allow serialize/deserialize classes and store them in AsyncStorage.",
     "main": "Model.js",
     "keywords": [
-        "react",
-        "native",
+        "react-native",
         "model"
     ],
     "author": "nikches",
