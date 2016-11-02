@@ -13,7 +13,7 @@ export default class Model {
      */
     constructor(properties) {
         for (const propertyName in properties) {
-            if (Object.prototype.hasOwnProperty.apply(properties, [propertyName]) === false) {
+            if (Model._isOwnProperty(propertyName, properties) === false) {
                 continue;
             }
 
@@ -40,6 +40,75 @@ export default class Model {
                 return this[privatePropertyName];
             };
         }
+    }
+
+    /**
+     * Create state object, equivalent this model.
+     *
+     * @returns {object} state
+     */
+    createState() {
+        const state = Object.create(null);
+
+        for (const propertyName in this) {
+            if (Model._isOwnProperty(propertyName, this) === false) {
+                continue;
+            }
+
+            if (propertyName.charAt(0) !== "_") {
+                continue;
+            }
+
+            const statePropery = propertyName.slice(1);
+            state[statePropery] = this[propertyName];
+        }
+
+        return state;
+    }
+
+    /**
+     * Populate members of the model from state.
+     *
+     * @param {object} state state
+     */
+    populateFromState(state) {
+        for (const propertyName in state) {
+            if (Model._isOwnProperty(propertyName, state) === false) {
+                continue;
+            }
+
+            const privatePropertyName = "_" + propertyName;
+
+            if (!(privatePropertyName in this)) {
+                throw new Error("Property " + propertyName + " does not exists in " + this.constructor.name + ".");
+            }
+
+            this[privatePropertyName] = state[propertyName];
+        }
+    }
+
+    /**
+     * Create new instance of the model from givent state.
+     *
+     * @static
+     * @param {object} state
+     * @return {Model}
+     */
+    static fromState(state) {
+        const className = this.name;
+
+        if (!(className in Model.classConstructors)) {
+            throw new Error("Unknow class. Use Model.use(" + className + ")");
+        }
+
+        const classConstructor = Model.classConstructors[className];
+        const model = new classConstructor();
+        model.populateFromState(state);
+        return model;
+    }
+
+    static _isOwnProperty(propertyName, object) {
+        return Object.prototype.hasOwnProperty.apply(object, [propertyName]);
     }
 
     /**
@@ -137,7 +206,7 @@ export default class Model {
 
         const data = Object.create(null);
         for (const key in object) {
-            if (Object.prototype.hasOwnProperty.apply(object, [key]) === false) {
+            if (Model._isOwnProperty(key, object) === false) {
                 continue;
             }
 
@@ -190,7 +259,7 @@ export default class Model {
         const data = container["data"];
 
         for (const key in data) {
-            if (Object.prototype.hasOwnProperty.apply(data, [key]) === false) {
+            if (Model._isOwnProperty(key, data) === false) {
                 continue;
             }
 
@@ -297,7 +366,7 @@ export default class Model {
             data = Object.create(null);
 
             for (const key in iterable) {
-                if (Object.prototype.hasOwnProperty.apply(iterable, [key]) === false) {
+                if (Model._isOwnProperty(key, iterable) === false) {
                     continue;
                 }
 
@@ -315,6 +384,10 @@ export default class Model {
     }
 
     static use(classConstructor) {
+        if (classConstructor in Model.classConstructors) {
+            throw new Error(classConstructor.name + " alredy using.");
+        }
+
         Model.classConstructors[classConstructor.name] = classConstructor;
     }
 }
