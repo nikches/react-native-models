@@ -119,20 +119,7 @@ export default class Model {
      * @returns {boolean}
      */
     static _checkType(value, requiredType) {
-        requiredType = requiredType.toLowerCase();
-
-        const matches = Object
-            .prototype
-            .toString
-            .apply(value)
-            .toLowerCase()
-            .match(/\[object (.*)\]/);
-
-        if (matches !== null && matches[1] === requiredType) {
-            return true;
-        }
-
-        return false;
+        return value.constructor.name === requiredType;
     }
 
     /**
@@ -238,23 +225,7 @@ export default class Model {
             return false;
         }
 
-        if (action === "serialization" && value instanceof Model) {
-            return false;
-        }
-
-        if (action === "deserialization" && value[Model._classNameKey] !== undefined) {
-            return false;
-        }
-
-        if (Object.prototype.toString.call(value) === "[object Object]") {
-            return true;
-        }
-
-        if (Array.isArray(value)) {
-            return true;
-        }
-
-        return false;
+        return Model._checkType(value, "Object") || Model._checkType(value, "Array");
     }
 
     /**

@@ -7,41 +7,43 @@ describe("ModelBase", () => {
     describe("constructor", () => {
         it("should create correct properties for model", () => {
             const model = new Model({
-                "": "number",
-                numberProperty: "number",
-                stringProperty: "string",
-                booleanProperty: "boolean",
-                objectProperty: "object",
+                "": "Number",
+                numberProperty: "Number",
+                stringProperty: "String",
+                booleanProperty: "Boolean",
+                objectProperty: "Object",
             });
         });
 
         it("should throw error if properties beginning by underscore", () => {
             Assert.throws(() => {
-                const model = new Model({ _property: "number" });
+                const model = new Model({ 
+                    _property: "Number" 
+                });
             });
         });
     });
 
     describe("_checkType", () => {
         it("should return true if passed correct type", () => {
-            Assert.equal(Model._checkType(1,            "number"),   true);
-            Assert.equal(Model._checkType(false,        "boolean"),  true);
-            Assert.equal(Model._checkType("string",     "string"),   true);
-            Assert.equal(Model._checkType(() => {},     "function"), true);
-            Assert.equal(Model._checkType({},           "object"),   true);
-            Assert.equal(Model._checkType([],           "array"),    true);
-            Assert.equal(Model._checkType(new Date(),   "date"),     true);
-            Assert.equal(Model._checkType(new RegExp(), "regexp"),   true);
-            Assert.equal(Model._checkType(new Model(),  "object"),   true);
+            Assert.equal(Model._checkType(1,            "Number"),   true);
+            Assert.equal(Model._checkType(false,        "Boolean"),  true);
+            Assert.equal(Model._checkType("string",     "String"),   true);
+            Assert.equal(Model._checkType(() => {},     "Function"), true);
+            Assert.equal(Model._checkType({},           "Object"),   true);
+            Assert.equal(Model._checkType([],           "Array"),    true);
+            Assert.equal(Model._checkType(new Date(),   "Date"),     true);
+            Assert.equal(Model._checkType(new RegExp(), "RegExp"),   true);
+            Assert.equal(Model._checkType(new Model(),  "Model"),    true);
         });
     });
 
     describe("setter", () => {
         it("should set property value", () => {
             const model = new Model({
-                numberProperty: "number",
-                stringProperty: "string",
-                objectProperty: "object",
+                numberProperty: "Number",
+                stringProperty: "String",
+                objectProperty: "Object",
             });
 
             Assert.doesNotThrow(() => {
@@ -53,7 +55,7 @@ describe("ModelBase", () => {
 
         it("should throw error if passed value of incorrect type", () => {
             const model = new Model({
-                numberProperty: "number",
+                numberProperty: "Number",
             });
 
             Assert.throws(() => {
@@ -65,7 +67,7 @@ describe("ModelBase", () => {
     describe("getter", () => {
         it("should return correct value", () => {
             const model = new Model({
-                numberProperty: "number",
+                numberProperty: "Number",
             });
 
             Assert.equal(model.getNumberProperty(), null);
@@ -77,9 +79,9 @@ describe("ModelBase", () => {
     describe("createState", () => {
         it("should create state according model's properties", () => {
             const model = new Model({
-                numberProperty: "number",
-                stringProperty: "string",
-                objectProperty: "object",
+                numberProperty: "Number",
+                stringProperty: "String",
+                objectProperty: "Object",
             });
 
             model.setNumberProperty(0);
@@ -98,9 +100,9 @@ describe("ModelBase", () => {
     describe("populateFromState", () => {
         it("should correct read values of properties", () => {
             const model = new Model({
-                numberProperty: "number",
-                stringProperty: "string",
-                objectProperty: "object",
+                numberProperty: "Number",
+                stringProperty: "String",
+                objectProperty: "Object",
             });
 
             const state = {
@@ -161,12 +163,12 @@ describe("ModelBase", () => {
                 }
             };
 
-            Model.use(Model);
+            Model.require(Model);
 
             const model = Model.fromState(state, {
-                numberProperty: "number",
-                stringProperty: "string",
-                objectProperty: "objectProperty",
+                numberProperty: "Number",
+                stringProperty: "String",
+                objectProperty: "ObjectProperty",
             });
 
             Assert.equal(model.getNumberProperty(), 0);
