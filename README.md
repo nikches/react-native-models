@@ -40,8 +40,8 @@ class MyModel extends Model {
 
       try {
         this.setA("1");
-      } catch (exception) {
-        // catch TypeError
+      } catch (error) {
+        // error handling
       }
   }
 }
@@ -86,11 +86,10 @@ export default class MyClass extends React.Component {
     }
 
     componentWillMount() {
-        Model.require(Model); // Required for instancing of models objects.
-
-        Model.restore().then((model) => {
-            if (model !== null) {
-                this.setState(model.createState());
+        MyModel.require(MyModel); // Required for instancing of models objects.
+        MyModel.restore().then((myModel) => {
+            if (myModel!== null) {
+                this.setState(myModel.createState());
             }
         }).catch((error) => {
             // error handling
