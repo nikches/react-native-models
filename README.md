@@ -2,7 +2,7 @@
 Implementation of the models for React Native.
 
 ### Features:
-- serialization/Deserialization and saving of models in AsyncStorage;
+- serialization/deserialization and saving of models in AsyncStorage;
 - properties of setters/getters for models;
 - verification of property types;
 - filling models from state.
