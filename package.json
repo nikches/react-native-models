@@ -1,21 +1,21 @@
 {
-    "name": "react-native-models",
-    "version": "0.4.0",
-    "description": "Implementation of the models for React Native. Allow serialize/deserialize classes and store them in AsyncStorage.",
-    "main": "Model.js",
-    "scripts": {
-        "test": "mocha --require babel-register"
-    },
-    "keywords": [
-        "react-native",
-        "model"
-    ],
-    "author": "nikches",
-    "license": "MIT",
-    "devDependencies": {
-        "babel-core": "^6.18.2",
-        "babel-preset-es2015": "^6.18.0",
-        "babel-register": "^6.18.0",
-        "mocha": "^3.1.2"
-    }
+  "name": "react-native-models",
+  "version": "0.4.1",
+  "description": "Implementation of the models for React Native. Allow serialize/deserialize classes and store them in AsyncStorage.",
+  "main": "Model.js",
+  "scripts": {
+    "test": "mocha --require babel-register"
+  },
+  "keywords": [
+    "react-native",
+    "model"
+  ],
+  "author": "nikches",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-register": "^6.18.0",
+    "mocha": "^3.1.2"
+  }
 }

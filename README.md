@@ -11,34 +11,38 @@ Implementation of the models for React Native.
 
 #### Properties
 ```javascript
-import Model from "../react-native-models/Model";
+import Model from "react-native-models";
 
 class MyModel extends Model {
   constructor(a = 0, b = "foo") {
-    super({
-      a: "number",
-      b: "string",
-    });
-    // Now MyModel has two members
-    // this._a === null
-    // this._b === null
+      super({
+          a: "Number",
+          b: "String",
+      });
+      // Now MyModel has two members
+      // this._a === null
+      // this._b === null
 
-    this._a = a; // this._a === 0
-    this._b = b; // this._b === "foo"
+      this._a = a; // this._a === 0
+      this._b = b; // this._b === "foo"
+
+      // or with validation of type
+      this.setA(a);
+      this.setB(b);
   }
 
   test() {
-    this.setA(1);
-    this.setB("bar");
+      this.setA(1);
+      this.setB("bar");
 
-    const a = this.getA(); // a === 1
-    const b = this.getB(); // b === "bar"
+      const a = this.getA(); // a === 1
+      const b = this.getB(); // b === "bar"
 
-    try {
-      this.setA("1");
-    } catch (exception) {
-      // catch TypeError
-    }
+      try {
+        this.setA("1");
+      } catch (exception) {
+        // catch TypeError
+      }
   }
 }
 ```
@@ -71,7 +75,7 @@ MyModel.restore().then((myModel) => {
 
 ```javascript
 import React from "react";
-import Model from "./react-native-models";
+import Model from "react-native-models";
 
 export default class MyClass extends React.Component {
     constructor(props) {
@@ -94,6 +98,7 @@ export default class MyClass extends React.Component {
 
 ### Testing
 ```
+npm install --save-dev
 npm test
 ```
 
