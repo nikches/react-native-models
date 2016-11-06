@@ -119,6 +119,19 @@ export default class Model {
      * @returns {boolean}
      */
     static _checkType(value, requiredType) {
+        if (value === undefined) {
+            throw new Error("Undefined value not supported.");
+        }
+
+        if (value === null && requiredType === "Object") {
+            return true;
+        }
+
+        if (value.constructor === undefined) {
+            const matches = Object.prototype.toString.call(value).match(/\[object (.+)\]/);
+            return matches !== null && matches[1] === requiredType;
+        }
+
         return value.constructor.name === requiredType;
     }
 
@@ -222,6 +235,14 @@ export default class Model {
      */
     static _isObjectOrArray(value, action = "serialization") {
         if (value === undefined || value === null) {
+            return false;
+        }
+
+        if (action === "serialization" && value instanceof Model) {
+            return false;
+        }
+
+        if (action === "deserialization" && value[Model._classNameKey] !== undefined) {
             return false;
         }
 

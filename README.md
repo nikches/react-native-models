@@ -76,10 +76,13 @@ MyModel.restore().then((myModel) => {
 ```javascript
 import React from "react";
 import Model from "react-native-models";
+import MyModel from "./MyModel";
 
 export default class MyClass extends React.Component {
     constructor(props) {
         super(props);
+        // Use default values of model
+        this.state = new MyModel().createState();
     }
 
     componentWillMount() {

@@ -17,8 +17,8 @@ describe("ModelBase", () => {
 
         it("should throw error if properties beginning by underscore", () => {
             Assert.throws(() => {
-                const model = new Model({ 
-                    _property: "Number" 
+                const model = new Model({
+                    _property: "Number"
                 });
             });
         });
@@ -32,9 +32,14 @@ describe("ModelBase", () => {
             Assert.equal(Model._checkType(() => {},     "Function"), true);
             Assert.equal(Model._checkType({},           "Object"),   true);
             Assert.equal(Model._checkType([],           "Array"),    true);
+            Assert.equal(Model._checkType(null,         "Object"),   true);
             Assert.equal(Model._checkType(new Date(),   "Date"),     true);
             Assert.equal(Model._checkType(new RegExp(), "RegExp"),   true);
             Assert.equal(Model._checkType(new Model(),  "Model"),    true);
+
+            Assert.throws(() => {
+                Model._checkType(undefined, "undefined", false);
+            });
         });
     });
 
@@ -183,15 +188,85 @@ describe("ModelBase", () => {
 
     describe("_serialize", () => {
         const model = new Model({
-            numberProperty: "numberProperty"
+            numberProperty: "Number",
+            booleanProperty: "Boolean",
+            stringProperty: "String",
+            objectProperty: "Object",
+            arrayProperty: "Array",
+            array2Property: "Array",
+            modelProperty: "Model",
         });
+
+        model.setNumberProperty(-3.14);
+        model.setBooleanProperty(true);
+        model.setStringProperty("string");
+        model.setObjectProperty({
+            number: 0,
+            string: "string",
+            object: Object.create(null),
+            array: []
+        });
+
+        model.setArrayProperty([
+            0, "string", {}, []
+        ]);
+
+        model.setModelProperty(new Model());
+        model.setArray2Property(new Array());
 
         const serialized = Model._serialize(model);
         Assert.notEqual(serialized[Model._classNameKey], undefined);
         Assert.notEqual(serialized["data"], undefined);
+
+        const data = serialized["data"];
+        Assert.equal(Math.abs(data["_numberProperty"] + 3.14) < Number.EPSILON, true);
+        Assert.equal(data["_booleanProperty"], true);
+        Assert.equal(data["_stringProperty"], "string");
+
+        const dataObject = data["_objectProperty"];
+        Assert.equal(dataObject["number"], 0);
+        Assert.equal(dataObject["string"], "string");
+        Assert.equal(Model._checkType(dataObject["object"], "Object"), true);
+        Assert.equal(Array.isArray(dataObject["array"]), true);
+
+        const dataArray = data["_arrayProperty"];
+        const dataArray2 = data["_array2Property"];
+        Assert.equal(dataArray[0], 0);
+        Assert.equal(dataArray[1], "string");
+        Assert.equal(Model._checkType(dataArray[2], "Object"), true);
+        Assert.equal(Model._checkType(dataArray[3], "Array"),  true);
+
+        const dataModel = data["_modelProperty"];
+        Assert.notEqual(dataModel[Model._classNameKey], undefined);
+        Assert.notEqual(dataModel["data"], undefined);
     });
 
     describe("_deserialize", () => {
+        Model.require(Model);
 
+        let model = new Model({
+            numberProperty: "Number",
+            booleanProperty: "Boolean",
+            stringProperty: "String",
+            objectProperty: "Object",
+            arrayProperty: "Array",
+            array2Property: "Array",
+            nestedModelProperty: "Model",
+        });
+
+        let nestedModel = new Model({
+            numberProperty: "Number",
+        });
+
+        model.setNumberProperty(42);
+        nestedModel.setNumberProperty(42);
+        model.setNestedModelProperty(nestedModel);
+
+        const serialized   = model.serialize();
+        const deserialized = Model.deserialize(serialized);
+
+        Assert.equal(deserialized._numberProperty, 42);
+        nestedModel = deserialized._nestedModelProperty;
+        Assert.equal(nestedModel._numberProperty, 42);
     });
 });
