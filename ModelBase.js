@@ -97,7 +97,7 @@ export default class Model {
         const className = this.name;
 
         if (!(className in Model.classConstructors)) {
-            throw new Error("Unknow class. Use Model.use(" + className + ")");
+            throw new Error("Unknow class. Use Model.require(" + className + ")");
         }
 
         const classConstructor = Model.classConstructors[className];
@@ -203,7 +203,7 @@ export default class Model {
         }
 
         if (!(className in Model.classConstructors)) {
-            throw new Error("Unknow class. Use Model.use(" + className + ")");
+            throw new Error("Unknow class. Use Model.require(" + className + ")");
         }
 
         const instance = new Model.classConstructors[className]();
@@ -334,7 +334,7 @@ export default class Model {
         return data;
     }
 
-    static use(classConstructor) {
+    static require(classConstructor) {
         if (classConstructor in Model.classConstructors) {
             throw new Error(classConstructor.name + " alredy using.");
         }
