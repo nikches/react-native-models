@@ -2,11 +2,10 @@
 Implementation of the models for React Native.
 
 ### Features:
-- serialization/deserialization of the classes and saving them in AsyncStorage;
-- setters/getters for properties;
-- validating of property's type;
-- creating of object's state from properties;
-- populating of the model's object from state.
+- serialization/Deserialization and saving of models in AsyncStorage;
+- properties of setters/getters for models;
+- verification of property types;
+- filling models from state.
 
 ### Exaples
 
@@ -23,18 +22,18 @@ class MyModel extends Model {
     // Now MyModel has two members
     // this._a === null
     // this._b === null
-    
+
     this._a = a; // this._a === 0
     this._b = b; // this._b === "foo"
   }
-  
+
   test() {
     this.setA(1);
     this.setB("bar");
-    
+
     const a = this.getA(); // a === 1
     const b = this.getB(); // b === "bar"
-    
+
     try {
       this.setA("1");
     } catch (exception) {
@@ -67,3 +66,36 @@ MyModel.restore().then((myModel) => {
     // handle error
 });
 ```
+
+#### Filling state
+
+```javascript
+import React from "react";
+import Model from "./react-native-models";
+
+export default class MyClass extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    componentWillMount() {
+        Model.use(Model); // Required for instancing of models objects.
+
+        Model.restore().then((model) => {
+            if (model !== null) {
+                this.setState(model.createState());
+            }
+        }).catch((error) => {
+            // error handling
+        });
+    }
+}
+```
+
+### Tests
+```
+npm test
+```
+
+### Lince 
+**MIT**
