@@ -92,10 +92,10 @@ export default class MyClass extends React.Component {
 }
 ```
 
-### Tests
+### Testing
 ```
 npm test
 ```
 
-### Lince 
+### License
 **MIT**
