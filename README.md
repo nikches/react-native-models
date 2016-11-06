@@ -83,7 +83,7 @@ export default class MyClass extends React.Component {
     }
 
     componentWillMount() {
-        Model.use(Model); // Required for instancing of models objects.
+        Model.require(Model); // Required for instancing of models objects.
 
         Model.restore().then((model) => {
             if (model !== null) {
