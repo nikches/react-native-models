@@ -119,8 +119,12 @@ export default class Model {
      * @returns {boolean}
      */
     static _checkType(value, requiredType) {
-        if (value === undefined) {
-            throw new Error("Undefined value not supported.");
+        if (value === undefined) {               
+            if (requiredType === "Undefined") {
+                return true;
+            } else {
+                return false;
+            }
         }
 
         if (value === null && requiredType === "Object") {

@@ -36,10 +36,8 @@ describe("ModelBase", () => {
             Assert.equal(Model._checkType(new Date(),   "Date"),     true);
             Assert.equal(Model._checkType(new RegExp(), "RegExp"),   true);
             Assert.equal(Model._checkType(new Model(),  "Model"),    true);
-
-            Assert.throws(() => {
-                Model._checkType(undefined, "undefined", false);
-            });
+            Assert.equal(Model._checkType(undefined, "Undefined"),   true);
+            Assert.equal(Model._checkType(undefined, undefined),     false);
         });
     });
 
