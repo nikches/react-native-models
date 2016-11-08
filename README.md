@@ -103,6 +103,7 @@ export default class MyClass extends React.Component {
 ### Testing
 ```
 npm install --save-dev
+echo '{ "presets": ["es2015"] }' > .babelrc
 npm test
 ```
 
