@@ -1,13 +1,13 @@
 # react-native-models
 Implementation of the models for React Native.
 
-- serialization/deserialization of Date and RegExp objects not supported yet. Instead it should be used strings.
-
 ### Features:
 - serialization/deserialization and saving of models in AsyncStorage;
-- properties of setters/getters for models;
+- support of nested models;
+- setters/getters for model's properties;
 - verification of property types;
-- filling models from state.
+- filling models from state;
+- serialization/deserialization of Date and RegExp objects not supported yet. Instead it should be used strings.
 
 ### Exaples
 
@@ -47,13 +47,6 @@ class MyModel extends Model {
       }
   }
 }
-```
-
-#### Serialization/deserialization
-```javascript
-const myModel = new MyModel();
-const serialized = myModel.serialize();
-const myModel2 = MyModel.deserialize(serialized);
 ```
 
 #### Store/restore in AsyncStorage
@@ -98,6 +91,13 @@ export default class MyClass extends React.Component {
         });
     }
 }
+```
+
+#### Serialization/deserialization
+```javascript
+const myModel = new MyModel();
+const serialized = myModel.serialize();
+const myModel2 = MyModel.deserialize(serialized);
 ```
 
 ### Testing
