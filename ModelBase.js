@@ -136,13 +136,9 @@ export default class ModelBase {
         }
 
         if (value.constructor === undefined) {
-            const matches = Object.prototype.toString.call(value).match(/\[object (.+)\]/);
-
-            if (matches === null) {
-                throw new Error("Unknow type");
-            }
-
-            return matches[1];
+            const typeName = typeof value;
+            const typeNameCapitalized = typeName.charAt(0).toUpperCase() + typeName.slice(1);
+            return typeNameCapitalized;
         }
 
         return value.constructor.name;
