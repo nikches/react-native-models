@@ -1,4 +1,4 @@
-export default class Model {
+export default class ModelBase {
     static get _classNameKey() {
         return "__REACT_NATIVE_MODELS_CLASS_NAME__";
     }
@@ -7,11 +7,11 @@ export default class Model {
      * Create private properties and getProperty/setProperty methods for them.
      *
      * @param {object} properties propertyName: propertyType
-     * @returns {Model}
+     * @returns {ModelBase}
      */
     constructor(properties) {
         for (const propertyName in properties) {
-            if (Model._isOwnProperty(propertyName, properties) === false) {
+            if (ModelBase._isOwnProperty(propertyName, properties) === false) {
                 continue;
             }
 
@@ -21,20 +21,20 @@ export default class Model {
 
             const propertyType = properties[propertyName];
             const privatePropertyName = "_" + propertyName;
-            const propertyNameCapitalize =
+            const propertyNameCapitalized =
                 propertyName.charAt(0).toUpperCase() +
                 propertyName.slice(1);
 
             this[privatePropertyName] = null;
-            this["set" + propertyNameCapitalize] = (value) => {
-                if (Model._checkType(value, propertyType) === false) {
-                    throw new TypeError(`${propertyName} is ${propertyType}`);
+            this["set" + propertyNameCapitalized] = (value) => {
+                if (ModelBase._checkType(value, propertyType) === false) {
+                    throw new TypeError(`"${propertyName}" is of type "${ModelBase._getTypeName(value)}". Expected "${propertyType}".`);
                 }
 
                 this[privatePropertyName] = value;
             };
 
-            this["get" + propertyNameCapitalize] = () => {
+            this["get" + propertyNameCapitalized] = () => {
                 return this[privatePropertyName];
             };
         }
@@ -47,9 +47,8 @@ export default class Model {
      */
     createState() {
         const state = Object.create(null);
-
         for (const propertyName in this) {
-            if (Model._isOwnProperty(propertyName, this) === false) {
+            if (ModelBase._isOwnProperty(propertyName, this) === false) {
                 continue;
             }
 
@@ -70,16 +69,27 @@ export default class Model {
      * @param {object} state state
      */
     populateFromState(state) {
+        // Create instance of ModelBase which has property's types in closure.
+        const constructor = ModelBase._getConstructor(this.constructor.name);
+        const typeCheckObject = new constructor();
+
         for (const propertyName in state) {
-            if (Model._isOwnProperty(propertyName, state) === false) {
+            if (ModelBase._isOwnProperty(propertyName, state) === false) {
                 continue;
             }
 
             const privatePropertyName = "_" + propertyName;
+            const propertyNameCapitalized =
+                propertyName.charAt(0).toUpperCase() +
+                propertyName.slice(1);
 
             if (!(privatePropertyName in this)) {
-                throw new Error("Property " + propertyName + " does not exists in " + this.constructor.name + ".");
+                throw new Error(`Property "${propertyName}" does not exists in "${this.constructor.name}".`);
             }
+
+            // Should throw exception if type of property is invalid.
+            const setter = "set" + propertyNameCapitalized;
+            typeCheckObject[setter](state[propertyName]);
 
             this[privatePropertyName] = state[propertyName];
         }
@@ -91,16 +101,10 @@ export default class Model {
      * @static
      * @param {object} state
      * @param {object} properties
-     * @return {Model}
+     * @return {ModelBase}
      */
     static fromState(state, properties) {
-        const className = this.name;
-
-        if (!(className in Model.classConstructors)) {
-            throw new Error("Unknow class. Use Model.require(" + className + ")");
-        }
-
-        const classConstructor = Model.classConstructors[className];
+        const classConstructor = ModelBase._getConstructor(this.name);
         const model = new classConstructor(properties);
         model.populateFromState(state);
         return model;
@@ -119,24 +123,29 @@ export default class Model {
      * @returns {boolean}
      */
     static _checkType(value, requiredType) {
-        if (value === undefined) {               
-            if (requiredType === "Undefined") {
-                return true;
-            } else {
-                return false;
-            }
+        return ModelBase._getTypeName(value) === requiredType;
+    }
+
+    static _getTypeName(value) {
+        if (value === undefined) {
+            return "Undefined";
         }
 
-        if (value === null && requiredType === "Object") {
-            return true;
+        if (value === null) {
+            return "Object";
         }
 
         if (value.constructor === undefined) {
             const matches = Object.prototype.toString.call(value).match(/\[object (.+)\]/);
-            return matches !== null && matches[1] === requiredType;
+
+            if (matches === null) {
+                throw new Error("Unknow type");
+            }
+
+            return matches[1];
         }
 
-        return value.constructor.name === requiredType;
+        return value.constructor.name;
     }
 
     /**
@@ -145,23 +154,23 @@ export default class Model {
      * @returns {string} JSON string
      */
     serialize() {
-        return JSON.stringify(Model._serialize(this));
+        return JSON.stringify(ModelBase._serialize(this));
     }
 
     /**
-     * Serialize recursively instance of Model.
+     * Serialize recursively instance of ModelBase.
      *
      * @static
-     * @param {Model} object
+     * @param {ModelBase} object
      * @returns {object}
      */
     static _serialize(object) {
         const container = Object.create(null);
-        container[Model._classNameKey] = object.constructor.name;
+        container[ModelBase._classNameKey] = object.constructor.name;
 
         const data = Object.create(null);
         for (const key in object) {
-            if (Model._isOwnProperty(key, object) === false) {
+            if (ModelBase._isOwnProperty(key, object) === false) {
                 continue;
             }
 
@@ -171,10 +180,10 @@ export default class Model {
 
             const value = object[key];
 
-            if (Model._isObjectOrArray(value, "serialization")) {
-                data[key] = Model._processObjectOrArray(value, "serialization");
+            if (ModelBase._isObjectOrArray(value, "serialization")) {
+                data[key] = ModelBase._processObjectOrArray(value, "serialization");
             } else {
-                data[key] = Model._processScalar(value, "serialization");
+                data[key] = ModelBase._processScalar(value, "serialization");
             }
         }
 
@@ -189,41 +198,38 @@ export default class Model {
      * @param {string} JSONString
      */
     static deserialize(JSONString) {
-        return Model._deserialize(JSON.parse(JSONString));
+        return ModelBase._deserialize(JSON.parse(JSONString));
     }
 
     /**
-     * Deserialize instance of Model.
+     * Deserialize instance of ModelBase.
      *
      * @static
      * @param {object} container
-     * @return {Model}
+     * @return {ModelBase}
      */
     static _deserialize(container) {
-        const className = container[Model._classNameKey];
+        const className = container[ModelBase._classNameKey];
 
         if (className === undefined) {
             throw new Error("Invalid object");
         }
 
-        if (!(className in Model.classConstructors)) {
-            throw new Error("Unknow class. Use Model.require(" + className + ")");
-        }
-
-        const instance = new Model.classConstructors[className]();
+        const constructor = ModelBase._getConstructor(className);
+        const instance = new constructor();
         const data = container["data"];
 
         for (const key in data) {
-            if (Model._isOwnProperty(key, data) === false) {
+            if (ModelBase._isOwnProperty(key, data) === false) {
                 continue;
             }
 
             const value = data[key];
 
-            if (Model._isObjectOrArray(value, "deserialization")) {
-                instance[key] = Model._processObjectOrArray(value, "deserialization");
+            if (ModelBase._isObjectOrArray(value, "deserialization")) {
+                instance[key] = ModelBase._processObjectOrArray(value, "deserialization");
             } else {
-                instance[key] = Model._processScalar(value, "deserialization");
+                instance[key] = ModelBase._processScalar(value, "deserialization");
             }
         }
 
@@ -242,19 +248,19 @@ export default class Model {
             return false;
         }
 
-        if (action === "serialization" && value instanceof Model) {
+        if (action === "serialization" && value instanceof ModelBase) {
             return false;
         }
 
-        if (action === "deserialization" && value[Model._classNameKey] !== undefined) {
+        if (action === "deserialization" && value[ModelBase._classNameKey] !== undefined) {
             return false;
         }
 
-        return Model._checkType(value, "Object") || Model._checkType(value, "Array");
+        return ModelBase._checkType(value, "Object") || ModelBase._checkType(value, "Array");
     }
 
     /**
-     * Serialize/deserialize instance of Model, Number, Boolean, String, Date.
+     * Serialize/deserialize instance of ModelBase, Number, Boolean, String, Date.
      *
      * @static
      * @param {any} scalar
@@ -267,8 +273,8 @@ export default class Model {
         }
 
         if (action === "serialization") {
-            if (scalar instanceof Model) {
-                return Model._serialize(scalar);
+            if (scalar instanceof ModelBase) {
+                return ModelBase._serialize(scalar);
             }
 
             if (scalar instanceof Date) {
@@ -281,8 +287,8 @@ export default class Model {
         }
 
         if (action === "deserialization") {
-            if (scalar[Model._classNameKey]) {
-                return Model._deserialize(scalar);
+            if (scalar[ModelBase._classNameKey]) {
+                return ModelBase._deserialize(scalar);
             }
         }
 
@@ -303,26 +309,26 @@ export default class Model {
             data = [];
             for (let i = 0; i < iterable.length; i++) {
                 const value = iterable[i];
-                if (Model._isObjectOrArray(value, action)) {
-                    data.push(Model._processObjectOrArray(value, action));
+                if (ModelBase._isObjectOrArray(value, action)) {
+                    data.push(ModelBase._processObjectOrArray(value, action));
                 } else {
-                    data.push(Model._processScalar(value, action));
+                    data.push(ModelBase._processScalar(value, action));
                 }
             }
         } else {
             data = Object.create(null);
 
             for (const key in iterable) {
-                if (Model._isOwnProperty(key, iterable) === false) {
+                if (ModelBase._isOwnProperty(key, iterable) === false) {
                     continue;
                 }
 
                 const value = iterable[key];
 
-                if (Model._isObjectOrArray(value, action)) {
-                    data[key] = Model._processObjectOrArray(value, action);
+                if (ModelBase._isObjectOrArray(value, action)) {
+                    data[key] = ModelBase._processObjectOrArray(value, action);
                 } else {
-                    data[key] = Model._processScalar(value, action);
+                    data[key] = ModelBase._processScalar(value, action);
                 }
             }
         }
@@ -331,12 +337,20 @@ export default class Model {
     }
 
     static require(classConstructor) {
-        if (classConstructor in Model.classConstructors) {
+        if (classConstructor in ModelBase.classConstructors) {
             throw new Error(classConstructor.name + " alredy using.");
         }
 
-        Model.classConstructors[classConstructor.name] = classConstructor;
+        ModelBase.classConstructors[classConstructor.name] = classConstructor;
+    }
+
+    static _getConstructor(className) {
+        if (!(className in ModelBase.classConstructors)) {
+            throw new Error("Unknow class. Use ModelBase.require(" + className + ")");
+        }
+
+        return ModelBase.classConstructors[className];
     }
 }
 
-Model.classConstructors = Object.create(null);
+ModelBase.classConstructors = Object.create(null);

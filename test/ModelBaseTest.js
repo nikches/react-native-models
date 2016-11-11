@@ -1,23 +1,19 @@
-import Assert from "assert";
-import Model  from "../ModelBase";
+import Assert    from "assert";
+import ModelBase from "../ModelBase";
+import TestModel from "../TestModel";
 /* global describe */
 /* global it */
 
 describe("ModelBase", () => {
     describe("constructor", () => {
         it("should create correct properties for model", () => {
-            const model = new Model({
-                "": "Number",
-                numberProperty: "Number",
-                stringProperty: "String",
-                booleanProperty: "Boolean",
-                objectProperty: "Object",
-            });
+            const testModel = new TestModel(42);
+            Assert.equal(testModel._number, 42);
         });
 
         it("should throw error if properties beginning by underscore", () => {
             Assert.throws(() => {
-                const model = new Model({
+                const modelBase = new ModelBase({
                     _property: "Number"
                 });
             });
@@ -26,245 +22,216 @@ describe("ModelBase", () => {
 
     describe("_checkType", () => {
         it("should return true if passed correct type", () => {
-            Assert.equal(Model._checkType(1,            "Number"),   true);
-            Assert.equal(Model._checkType(false,        "Boolean"),  true);
-            Assert.equal(Model._checkType("string",     "String"),   true);
-            Assert.equal(Model._checkType(() => {},     "Function"), true);
-            Assert.equal(Model._checkType({},           "Object"),   true);
-            Assert.equal(Model._checkType([],           "Array"),    true);
-            Assert.equal(Model._checkType(null,         "Object"),   true);
-            Assert.equal(Model._checkType(new Date(),   "Date"),     true);
-            Assert.equal(Model._checkType(new RegExp(), "RegExp"),   true);
-            Assert.equal(Model._checkType(new Model(),  "Model"),    true);
-            Assert.equal(Model._checkType(undefined, "Undefined"),   true);
-            Assert.equal(Model._checkType(undefined, undefined),     false);
+            Assert.equal(ModelBase._checkType(1,            "Number"),   true);
+            Assert.equal(ModelBase._checkType(false,        "Boolean"),  true);
+            Assert.equal(ModelBase._checkType("string",     "String"),   true);
+            Assert.equal(ModelBase._checkType(() => {},     "Function"), true);
+            Assert.equal(ModelBase._checkType({},           "Object"),   true);
+            Assert.equal(ModelBase._checkType([],           "Array"),    true);
+            Assert.equal(ModelBase._checkType(null,         "Object"),   true);
+            Assert.equal(ModelBase._checkType(new Date(),   "Date"),     true);
+            Assert.equal(ModelBase._checkType(new RegExp(), "RegExp"),   true);
+            Assert.equal(ModelBase._checkType(new ModelBase(),  "ModelBase"), true);
+            Assert.equal(ModelBase._checkType(new TestModel(),  "TestModel"), true);
+            Assert.equal(ModelBase._checkType(undefined, "Undefined"),   true);
+            Assert.equal(ModelBase._checkType(undefined, undefined),     false);
         });
     });
 
     describe("setter", () => {
         it("should set property value", () => {
-            const model = new Model({
-                numberProperty: "Number",
-                stringProperty: "String",
-                objectProperty: "Object",
-            });
+            const testModel = new TestModel();
 
             Assert.doesNotThrow(() => {
-                model.setNumberProperty(0);
-                model.setStringProperty("string");
-                model.setObjectProperty({});
+                testModel.setNumber(0);
+                testModel.setString("string");
+                testModel.setBoolean(false);
+                testModel.setObject({});
+                testModel.setArray([]);
+                testModel.setModelBase(new ModelBase());
             });
         });
 
         it("should throw error if passed value of incorrect type", () => {
-            const model = new Model({
-                numberProperty: "Number",
-            });
-
+            const testModel = new TestModel();
             Assert.throws(() => {
-                model.setNumberProperty("1");
+                testModel.setNumber("1");
             });
         });
     });
 
     describe("getter", () => {
         it("should return correct value", () => {
-            const model = new Model({
-                numberProperty: "Number",
+            const testModel = new TestModel();
+            Assert.equal(testModel.getNumber(), 0);
+
+            const modelBase = new ModelBase({
+                number: "Number",
             });
 
-            Assert.equal(model.getNumberProperty(), null);
-            model.setNumberProperty(0);
-            Assert.equal(model.getNumberProperty(), 0);
+            Assert.equal(modelBase.getNumber(), null);
         });
     });
 
     describe("createState", () => {
         it("should create state according model's properties", () => {
-            const model = new Model({
-                numberProperty: "Number",
-                stringProperty: "String",
-                objectProperty: "Object",
-            });
+            const testModel = new TestModel();
+            const state = testModel.createState();
 
-            model.setNumberProperty(0);
-            model.setStringProperty("string");
-            model.setObjectProperty({});
-
-            const state = model.createState();
-
-            Assert.equal(state.unknowProperty,    undefined);
-            Assert.notEqual(state.numberProperty, undefined);
-            Assert.notEqual(state.stringProperty, undefined);
-            Assert.notEqual(state.objectProperty, undefined);
+            Assert.equal   (state.unknow, undefined);
+            Assert.notEqual(state.number, undefined);
+            Assert.notEqual(state.string, undefined);
+            Assert.notEqual(state.object, undefined);
         });
     });
 
     describe("populateFromState", () => {
         it("should correct read values of properties", () => {
-            const model = new Model({
-                numberProperty: "Number",
-                stringProperty: "String",
-                objectProperty: "Object",
-            });
+            const testModel = new TestModel();
 
             const state = {
-                numberProperty: 0,
-                stringProperty: "string",
-                objectProperty: {
+                number: 0,
+                string: "string",
+                object: {
                     a: 0,
-                    b: 1,
-                    c: "string",
+                    b: false,
+                    c: "",
                 }
             };
 
-            model.populateFromState(state);
-            Assert.equal(model.getNumberProperty(), state.numberProperty);
-            Assert.equal(model.getStringProperty(), state.stringProperty);
+            testModel.populateFromState(state);
 
-            const objectProperty = model.getObjectProperty();
-            for (const key in objectProperty) {
-                Assert.equal(objectProperty[key], state.objectProperty[key]);
+            Assert.equal(testModel.getNumber(), state.number);
+            Assert.equal(testModel.getString(), state.string);
+
+            const testModelObject = testModel.getObject();
+            for (const key in testModelObject) {
+                Assert.equal(testModelObject[key], state.object[key]);
             }
+        });
 
-            state["unknowProperty"] = 0;
+        it("should throw exception if state has unknow property", () => {
+            const testModel = new TestModel();
+            const state = {
+                unknowProperty: 0
+            };
 
             Assert.throws(() => {
-                model.populateFromState(state);
+                testModel.populateFromState(state);
+            });
+        });
+
+        it("should throw exception if state has invalid property's type", () => {
+            const testModel = new TestModel();
+            const state = {
+                number: "invalid value",
+            };
+
+            Assert.throws(() => {
+                testModel.populateFromState(state);
             });
         });
     });
 
     describe("_isObjectOrArray", () => {
         it("should correct distinguish an array and object from string, number, boolean or other not plain object", () => {
-            Assert.equal(Model._isObjectOrArray({}),            true);
-            Assert.equal(Model._isObjectOrArray([]),            true);
-            Assert.equal(Model._isObjectOrArray(new Object()),  true);
-            Assert.equal(Model._isObjectOrArray(new Array()),   true);
+            Assert.equal(ModelBase._isObjectOrArray({}),              true);
+            Assert.equal(ModelBase._isObjectOrArray([]),              true);
+            Assert.equal(ModelBase._isObjectOrArray(new Object()),    true);
+            Assert.equal(ModelBase._isObjectOrArray(new Array()),     true);
 
-            Assert.equal(Model._isObjectOrArray(new Model()),   false);
-            Assert.equal(Model._isObjectOrArray(new Date()),    false);
-            Assert.equal(Model._isObjectOrArray(new RegExp()),  false);
-            Assert.equal(Model._isObjectOrArray(new Number()),  false);
-            Assert.equal(Model._isObjectOrArray(new Boolean()), false);
-            Assert.equal(Model._isObjectOrArray(new String()),  false);
-            Assert.equal(Model._isObjectOrArray(0),             false);
-            Assert.equal(Model._isObjectOrArray("string"),      false);
-            Assert.equal(Model._isObjectOrArray(false),         false);
+            Assert.equal(ModelBase._isObjectOrArray(new ModelBase()), false);
+            Assert.equal(ModelBase._isObjectOrArray(new Date()),      false);
+            Assert.equal(ModelBase._isObjectOrArray(new RegExp()),    false);
+            Assert.equal(ModelBase._isObjectOrArray(new Number()),    false);
+            Assert.equal(ModelBase._isObjectOrArray(new Boolean()),   false);
+            Assert.equal(ModelBase._isObjectOrArray(new String()),    false);
+            Assert.equal(ModelBase._isObjectOrArray(0),               false);
+            Assert.equal(ModelBase._isObjectOrArray("string"),        false);
+            Assert.equal(ModelBase._isObjectOrArray(false),           false);
         });
     });
 
     describe("fromState", () => {
         it("should instance new Model from given state", () => {
             const state = {
-                numberProperty: 0,
-                stringProperty: "string",
-                objectProperty: {
-                    a: 0,
-                    b: 1,
-                    c: "string",
-                }
+                number:    1,
+                string:    "string",
+                boolean:   true,
+                object:    { a: 1 },
+                array:     [ 1 ],
+                modelBase: new ModelBase(),
             };
 
-            Model.require(Model);
-
-            const model = Model.fromState(state, {
-                numberProperty: "Number",
-                stringProperty: "String",
-                objectProperty: "ObjectProperty",
-            });
-
-            Assert.equal(model.getNumberProperty(), 0);
-            Assert.equal(model.getStringProperty(), "string");
-
-            const objectProperty = model.getObjectProperty();
-            for (const key in objectProperty) {
-                Assert.equal(objectProperty[key], state.objectProperty[key]);
-            }
+            TestModel.require(TestModel);
+            const testModel = TestModel.fromState(state);
         });
     });
 
     describe("_serialize", () => {
-        const model = new Model({
-            numberProperty: "Number",
-            booleanProperty: "Boolean",
-            stringProperty: "String",
-            objectProperty: "Object",
-            arrayProperty: "Array",
-            array2Property: "Array",
-            modelProperty: "Model",
-        });
+        const testModel = new TestModel();
 
-        model.setNumberProperty(-3.14);
-        model.setBooleanProperty(true);
-        model.setStringProperty("string");
-        model.setObjectProperty({
+        testModel.setNumber(-3.14);
+        testModel.setBoolean(true);
+        testModel.setString("string");
+        testModel.setObject({
             number: 0,
             string: "string",
             object: Object.create(null),
             array: []
         });
-
-        model.setArrayProperty([
+        testModel.setArray([
             0, "string", {}, []
         ]);
 
-        model.setModelProperty(new Model());
-        model.setArray2Property(new Array());
+        testModel.setModelBase(new ModelBase());
 
-        const serialized = Model._serialize(model);
-        Assert.notEqual(serialized[Model._classNameKey], undefined);
+        const serialized = TestModel._serialize(testModel);
+
+        Assert.notEqual(serialized[TestModel._classNameKey], undefined);
         Assert.notEqual(serialized["data"], undefined);
 
         const data = serialized["data"];
-        Assert.equal(Math.abs(data["_numberProperty"] + 3.14) < Number.EPSILON, true);
-        Assert.equal(data["_booleanProperty"], true);
-        Assert.equal(data["_stringProperty"], "string");
+        Assert.equal(Math.abs(data["_number"] + 3.14) < Number.EPSILON, true);
+        Assert.equal(data["_boolean"], true);
+        Assert.equal(data["_string"], "string");
 
-        const dataObject = data["_objectProperty"];
+        const dataObject = data["_object"];
         Assert.equal(dataObject["number"], 0);
         Assert.equal(dataObject["string"], "string");
-        Assert.equal(Model._checkType(dataObject["object"], "Object"), true);
+        Assert.equal(ModelBase._checkType(dataObject["object"], "Object"), true);
         Assert.equal(Array.isArray(dataObject["array"]), true);
 
-        const dataArray = data["_arrayProperty"];
-        const dataArray2 = data["_array2Property"];
+        const dataArray = data["_array"];
         Assert.equal(dataArray[0], 0);
         Assert.equal(dataArray[1], "string");
-        Assert.equal(Model._checkType(dataArray[2], "Object"), true);
-        Assert.equal(Model._checkType(dataArray[3], "Array"),  true);
+        Assert.equal(ModelBase._checkType(dataArray[2], "Object"), true);
+        Assert.equal(ModelBase._checkType(dataArray[3], "Array"),  true);
 
-        const dataModel = data["_modelProperty"];
-        Assert.notEqual(dataModel[Model._classNameKey], undefined);
+        const dataModel = data["_modelBase"];
+        Assert.notEqual(dataModel[ModelBase._classNameKey], undefined);
         Assert.notEqual(dataModel["data"], undefined);
     });
 
     describe("_deserialize", () => {
-        Model.require(Model);
+        TestModel.require(ModelBase);
+        TestModel.require(TestModel);
 
-        let model = new Model({
-            numberProperty: "Number",
-            booleanProperty: "Boolean",
-            stringProperty: "String",
-            objectProperty: "Object",
-            arrayProperty: "Array",
-            array2Property: "Array",
-            nestedModelProperty: "Model",
+        let testModel = new TestModel();
+
+        let nestedModel = new ModelBase({
+            number: "Number",
         });
 
-        let nestedModel = new Model({
-            numberProperty: "Number",
-        });
+        testModel.setNumber(42);
+        nestedModel.setNumber(42);
+        testModel.setModelBase(nestedModel);
 
-        model.setNumberProperty(42);
-        nestedModel.setNumberProperty(42);
-        model.setNestedModelProperty(nestedModel);
+        const serialized = testModel.serialize();
+        const deserialized = TestModel.deserialize(serialized);
 
-        const serialized   = model.serialize();
-        const deserialized = Model.deserialize(serialized);
-
-        Assert.equal(deserialized._numberProperty, 42);
-        nestedModel = deserialized._nestedModelProperty;
-        Assert.equal(nestedModel._numberProperty, 42);
+        Assert.equal(deserialized.getNumber(), 42);
+        nestedModel = deserialized.getModelBase();
+        Assert.equal(nestedModel._number, 42);
     });
 });
