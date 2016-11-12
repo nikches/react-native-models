@@ -344,16 +344,24 @@ export default class ModelBase {
     }
 
     static require(classConstructor) {
-        if (classConstructor in ModelBase.classConstructors) {
-            throw new Error(classConstructor.name + " alredy using.");
+        if (classConstructor === undefined) {
+            throw new Error("constructor is undefined");
         }
 
-        ModelBase.classConstructors[classConstructor.name] = classConstructor;
+        if (classConstructor.className === undefined) {
+            throw new Error("constructor must have className static property.");
+        }
+
+        // if (classConstructor.className in ModelBase.classConstructors) {
+        //     throw new Error(`${classConstructor.className} already in use.`);
+        // }
+
+        ModelBase.classConstructors[classConstructor.className] = classConstructor;
     }
 
     static _getConstructor(className) {
         if (!(className in ModelBase.classConstructors)) {
-            throw new Error("Unknow class. Use ModelBase.require(" + className + ")");
+            throw new Error(`Unknow class. Use ${this.className}.require(${className}).`);
         }
 
         return ModelBase.classConstructors[className];
