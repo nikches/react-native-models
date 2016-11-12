@@ -16,36 +16,42 @@ Implementation of the models for React Native.
 import Model from "react-native-models";
 
 class MyModel extends Model {
-  constructor(a = 0, b = "foo") {
-      super({
-          a: "Number",
-          b: "String",
-      });
-      // Now MyModel has two members
-      // this._a === null
-      // this._b === null
+    // className used instead name because babel replaces him at run-time.
+    static get className() {
+        return "MyModel";
+    }
 
-      this._a = a; // this._a === 0
-      this._b = b; // this._b === "foo"
+    constructor(a = 0, b = "foo") {
+        super({
+            a: "Number",
+            b: "String",
+        });
 
-      // or with validation of type
-      this.setA(a);
-      this.setB(b);
-  }
+        // Now MyModel has two members
+        // this._a === null
+        // this._b === null
 
-  test() {
-      this.setA(1);
-      this.setB("bar");
+        this._a = a; // this._a === 0
+        this._b = b; // this._b === "foo"
 
-      const a = this.getA(); // a === 1
-      const b = this.getB(); // b === "bar"
+        // or with validation of type
+        this.setA(a);
+        this.setB(b);
+    }
 
-      try {
-        this.setA("1");
-      } catch (error) {
-        // error handling
-      }
-  }
+    test() {
+        this.setA(1);
+        this.setB("bar");
+
+        const a = this.getA(); // a === 1
+        const b = this.getB(); // b === "bar"
+
+        try {
+          this.setA("1");
+        } catch (error) {
+          // error handling
+        }
+    }
 }
 ```
 
@@ -73,11 +79,11 @@ import React from "react";
 import Model from "react-native-models";
 import MyModel from "./MyModel";
 
-export default class MyClass extends React.Component {
+export default class MyComponent extends React.Component {
     constructor(props) {
         super(props);
         // Use default values of model
-        this.state = new MyModel().createState();
+        this.state = (new MyModel()).createState();
     }
 
     componentWillMount() {

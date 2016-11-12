@@ -4,13 +4,19 @@ export default class ModelBase {
     }
 
     /**
+     * className used instead name because babel replaces him at run-time.
+     */
+    static get className() {
+        return "ModelBase";
+    }
+
+    /**
      * Create private properties and getProperty/setProperty methods for them.
      *
      * @param {object} properties propertyName: propertyType
      * @returns {ModelBase}
      */
     constructor(properties) {
-
         for (const propertyName in properties) {
             if (ModelBase._isOwnProperty(propertyName, properties) === false) {
                 continue;
@@ -71,7 +77,7 @@ export default class ModelBase {
      */
     populateFromState(state) {
         // Create instance of ModelBase which has property's types in closure.
-        const constructor = ModelBase._getConstructor(this.constructor.name);
+        const constructor = ModelBase._getConstructor(this.constructor.className);
         const typeCheckObject = new constructor();
 
         for (const propertyName in state) {
@@ -85,7 +91,7 @@ export default class ModelBase {
                 propertyName.slice(1);
 
             if (!(privatePropertyName in this)) {
-                throw new Error(`Property "${propertyName}" does not exists in "${this.constructor.name}".`);
+                throw new Error(`Property "${propertyName}" does not exists in "${this.constructor.className}".`);
             }
 
             // Should throw exception if type of property is invalid.
@@ -105,7 +111,7 @@ export default class ModelBase {
      * @return {ModelBase}
      */
     static fromState(state, properties) {
-        const classConstructor = ModelBase._getConstructor(this.name);
+        const classConstructor = ModelBase._getConstructor(this.className);
         const model = new classConstructor(properties);
         model.populateFromState(state);
         return model;
@@ -136,7 +142,7 @@ export default class ModelBase {
             return "Object";
         }
 
-        if (value.constructor === undefined) {
+        if (value.constructor === undefined || value.constructor.className === undefined) {
             const matches = Object.prototype.toString.call(value).match(/\[object (.+)\]/);
 
             if (matches === null) {
@@ -146,7 +152,7 @@ export default class ModelBase {
             return matches[1];
         }
 
-        return value.constructor.name;
+        return value.constructor.className;
     }
 
     /**
@@ -167,7 +173,7 @@ export default class ModelBase {
      */
     static _serialize(object) {
         const container = Object.create(null);
-        container[ModelBase._classNameKey] = object.constructor.name;
+        container[ModelBase._classNameKey] = object.constructor.className;
 
         const data = Object.create(null);
         for (const key in object) {
