@@ -10,6 +10,7 @@ export default class ModelBase {
      * @returns {ModelBase}
      */
     constructor(properties) {
+
         for (const propertyName in properties) {
             if (ModelBase._isOwnProperty(propertyName, properties) === false) {
                 continue;
@@ -136,9 +137,13 @@ export default class ModelBase {
         }
 
         if (value.constructor === undefined) {
-            const typeName = typeof value;
-            const typeNameCapitalized = typeName.charAt(0).toUpperCase() + typeName.slice(1);
-            return typeNameCapitalized;
+            const matches = Object.prototype.toString.call(value).match(/\[object (.+)\]/);
+
+            if (matches === null) {
+                throw new Error("Unknow type");
+            }
+
+            return matches[1];
         }
 
         return value.constructor.name;
