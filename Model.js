@@ -10,7 +10,7 @@ export default class Model extends ModelBase {
      */
     store(key) {
         if (typeof(key) !== "string") {
-            key = this.constructor.name;
+            key = this.constructor.className;
         }
 
         return new Promise((resolve, reject) => {
@@ -33,7 +33,7 @@ export default class Model extends ModelBase {
      */
     static restore(key) {
         if (typeof(key) !== "string") {
-            key = this.name;
+            key = this.className;
         }
 
         return new Promise((resolve, reject) => {
