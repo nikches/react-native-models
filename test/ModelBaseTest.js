@@ -75,7 +75,7 @@ describe("ModelBase", () => {
     });
 
     describe("createState", () => {
-        it("should create state according model's properties", () => {
+        it("should create state according to model's properties", () => {
             const testModel = new TestModel();
             const state = testModel.createState();
 
@@ -111,10 +111,10 @@ describe("ModelBase", () => {
             }
         });
 
-        it("should throw exception if state has unknow property", () => {
+        it("should throw exception if state has unknown property", () => {
             const testModel = new TestModel();
             const state = {
-                unknowProperty: 0
+                unknownProperty: 0
             };
 
             Assert.throws(() => {
