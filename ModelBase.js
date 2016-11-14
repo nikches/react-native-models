@@ -4,7 +4,7 @@ export default class ModelBase {
     }
 
     /**
-     * className used instead name because babel replaces him at run-time.
+     * className used instead of the name because babel replaces him at run-time.
      */
     static get className() {
         return "ModelBase";
@@ -71,12 +71,12 @@ export default class ModelBase {
     }
 
     /**
-     * Populate members of the model from state.
+     * Populate members of the model from the state.
      *
      * @param {object} state state
      */
     populateFromState(state) {
-        // Create instance of ModelBase which has property's types in closure.
+        // Create the instance of ModelBase which has property's types in closure.
         const constructor = ModelBase._getConstructor(this.constructor.className);
         const typeCheckObject = new constructor();
 
@@ -103,7 +103,7 @@ export default class ModelBase {
     }
 
     /**
-     * Create new instance of the model from givent state.
+     * Create a new instance of the model from given state.
      *
      * @static
      * @param {object} state
@@ -122,7 +122,7 @@ export default class ModelBase {
     }
 
     /**
-     * Check type of value and return true if his matches with requiredType.
+     * Check the type of value and return true if his matches with requiredType.
      *
      * @static
      * @param {any} value
@@ -244,7 +244,7 @@ export default class ModelBase {
     }
 
     /**
-     * Check if value is plain object or array.
+     * Check if the value is a plain object or array.
      *
      * @static
      * @param {any} value
