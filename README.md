@@ -11,7 +11,7 @@ Implementation of the models for React Native.
 - setters/getters for model's properties;
 - verification of property types;
 - filling models from the state;
-- serialization/deserialization of Date and RegExp objects not supported yet. Instead, it should be used strings.
+- serialization/deserialization of Date and RegExp objects not supported yet. Instead of it should be used strings.
 
 ### Examples
 
