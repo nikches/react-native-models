@@ -1,7 +1,7 @@
 # react-native-models
 [![NPM downloads](http://img.shields.io/npm/dm/react-native-models.svg?style=flat&label=npm%20downloads)](https://npmjs.org/package/react-native-models)
 [![npm version](https://badge.fury.io/js/react-native-models.svg)](http://badge.fury.io/js/react-native-models)
-[![license](https://img.shields.io/npm/l/react-native-models.svg)](http://licenseit.ru/wiki/index.php/MIT)
+[![license](https://img.shields.io/npm/l/react-native-models.svg)](https://opensource.org/licenses/MIT)
 
 Implementation of the models for React Native.
 
@@ -118,4 +118,4 @@ npm test
 ```
 
 ### License
-[MIT](https://en.wikipedia.org/wiki/MIT_License)
+[MIT](https://opensource.org/licenses/MIT)
