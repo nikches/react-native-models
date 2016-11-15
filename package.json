@@ -1,6 +1,6 @@
 {
   "name": "react-native-models",
-  "version": "0.6.7",
+  "version": "0.6.8",
   "description": "Implementation of the models for React Native. Allow serialize/deserialize classes and store them in AsyncStorage.",
   "main": "Model.js",
   "scripts": {
