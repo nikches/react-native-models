@@ -1,4 +1,7 @@
 # react-native-models
+[![NPM downloads](http://img.shields.io/npm/dm/react-native-models.svg?style=flat&label=npm%20downloads)](https://npmjs.org/package/react-native-models)
+[![NPM version](https://img.shields.io/npm/l/react-native-models.svg)](http://licenseit.ru/wiki/index.php/MIT)
+
 Implementation of the models for React Native.
 
 ### Features:
@@ -114,4 +117,4 @@ npm test
 ```
 
 ### License
-**MIT**
+[MIT](https://en.wikipedia.org/wiki/MIT_License)
