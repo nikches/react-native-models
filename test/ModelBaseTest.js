@@ -28,6 +28,7 @@ describe("ModelBase", () => {
             Assert.equal(ModelBase._checkType(() => {},         "Function"  ),   true);
             Assert.equal(ModelBase._checkType({},               "Object"    ),   true);
             Assert.equal(ModelBase._checkType([],               "Array"     ),   true);
+            Assert.equal(ModelBase._checkType(Object.create(null), "Object" ),   true);
             Assert.equal(ModelBase._checkType(null,             "Object"    ),   true);
             Assert.equal(ModelBase._checkType(new Date(),       "Date"      ),   true);
             Assert.equal(ModelBase._checkType(new RegExp(),     "RegExp"    ),   true);
