@@ -35,7 +35,7 @@ export default class ModelBase {
             this[privatePropertyName] = null;
             this["set" + propertyNameCapitalized] = (value) => {
                 if (ModelBase._checkType(value, propertyType) === false) {
-                    throw new TypeError(`"${propertyName}" is of type "${ModelBase._getTypeName(value)}". Expected "${propertyType}".`);
+                    throw new TypeError(`"${this.constructor.className}.${propertyName}" is of type "${ModelBase._getTypeName(value)}". Expected "${propertyType}".`);
                 }
 
                 this[privatePropertyName] = value;
