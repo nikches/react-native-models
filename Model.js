@@ -1,9 +1,9 @@
 import ModelBase from "./ModelBase";
-
 let storageProvider = null;
 try {
-    storageProvider = require("react-native").AsynStorage;
-} catch(error) {
+    const ReactNative = require("react-native");
+    storageProvider = ReactNative.AsyncStorage;
+} catch (error) {
     storageProvider = require("./test/models/AsyncStorageMock").default;
 }
 
@@ -97,8 +97,8 @@ export default class Model extends ModelBase {
         return new Promise((resolve, reject) => {
             if (itemsPath !== null && lastChar === "*") {
                 storageProvider.getItem(itemsPath).then((itemKeysJson) => {
-                    if (itemKeysJson === null) {
-                        reject(new Error(`Key ${itemsPath} not found.`));
+                    if (itemKeysJson === undefined || itemKeysJson === null) {
+                        resolve([]);
                     }
 
                     const itemKeys = JSON.parse(itemKeysJson);
@@ -167,7 +167,7 @@ export default class Model extends ModelBase {
                 if (items.length === 0) {
                     return storageProvider.removeItem(itemsPath);
                 } else {
-                    return storageProvider.setItem(items, JSON.strinfify(items));
+                    return storageProvider.setItem(items, JSON.stringify(items));
                 }
             }).then(() => {
                 resolve();
