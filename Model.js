@@ -40,16 +40,18 @@ export default class Model extends ModelBase {
                 } else {
                     return storageProvider.getItem(itemsPath);
                 }
-            }).then((items) => {
-                if (items === undefined || items === null) {
-                    items = [];
+            }).then((itemsJson) => {
+                let items = [];
+
+                if (itemsJson !== undefined && itemsJson !== null) {
+                    items = JSON.parse(itemsJson);
                 }
 
                 if (items.indexOf(key) === -1) {
                     items.push(key);
                 }
 
-                return storageProvider.setItem(itemsPath, items);
+                return storageProvider.setItem(itemsPath, JSON.stringify(items));
             }).then(() => {
                 resolve();
             }).catch((error) => {
@@ -94,11 +96,12 @@ export default class Model extends ModelBase {
 
         return new Promise((resolve, reject) => {
             if (itemsPath !== null && lastChar === "*") {
-                storageProvider.getItem(itemsPath).then((itemKeys) => {
-                    if (itemKeys === null) {
+                storageProvider.getItem(itemsPath).then((itemKeysJson) => {
+                    if (itemKeysJson === null) {
                         reject(new Error(`Key ${itemsPath} not found.`));
                     }
 
+                    const itemKeys = JSON.parse(itemKeysJson);
                     const itemsPromises = [];
                     itemKeys.forEach((item) => {
                         itemsPromises.push(storageProvider.getItem(item));
@@ -148,12 +151,15 @@ export default class Model extends ModelBase {
                 } else {
                     return storageProvider.getItem(itemsPath);
                 }
-            }).then((items) => {
-                if (items === null) {
+            }).then((itemsJson) => {
+
+                if (itemsJson === undefined || itemsJson === null) {
                     resolve();
                 }
 
+                const items = JSON.parse(itemsJson);
                 const itemIndex = items.indexOf(key);
+
                 if (itemIndex !== -1) {
                     items.splice(itemIndex, 1);
                 }
@@ -161,7 +167,7 @@ export default class Model extends ModelBase {
                 if (items.length === 0) {
                     return storageProvider.removeItem(itemsPath);
                 } else {
-                    return storageProvider.setItem(items, items);
+                    return storageProvider.setItem(items, JSON.strinfify(items));
                 }
             }).then(() => {
                 resolve();

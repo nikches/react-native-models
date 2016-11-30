@@ -1,5 +1,9 @@
 export default class AsyncStorageMock {
     static setItem(key, value) {
+        if (typeof(value) !== "string") {
+            throw new Error ("Second argument should be string.");
+        }
+
         return new Promise((resolve, reject) => {
             AsyncStorageMock.items[key] = value;
             resolve();
