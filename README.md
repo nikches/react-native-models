@@ -120,7 +120,7 @@ MyModel.restore().then((myModel) => {
 ```
 
 #### Store/restore (path like syntax)
-```
+```javascript
 const myModel = new MyModel(1, "My model");
 const anotherModel = new MyModel(2, "Another model");
 
@@ -156,7 +156,9 @@ export default class MyComponent extends React.Component {
     }
 
     componentWillMount() {
-        MyModel.require(MyModel); // Required for instancing of models objects.
+        // Required for instancing of models objects.
+        MyModel.require(MyModel);
+
         MyModel.restore().then((myModel) => {
             if (myModel!== null) {
                 this.setState(myModel.createState());
