@@ -1,11 +1,21 @@
-import ModelBase        from "./ModelBase";
-import { AsyncStorage } from "react-native";
+import ModelBase from "./ModelBase";
+
+let storageProvider = null;
+try {
+    storageProvider = require("react-native").AsynStorage;
+} catch(error) {
+    storageProvider = require("./test/models/AsyncStorageMock").default;
+}
 
 export default class Model extends ModelBase {
+    static get className() {
+        return "Model";
+    }
+
     /**
-     * Write self in AsyncStorage.
+     * Write self into Storage.
      *
-     * @param {string} key AsynStorage key.
+     * @param {string} key Storage key.
      * @return {Promise}
      */
     store(key) {
@@ -13,10 +23,34 @@ export default class Model extends ModelBase {
             key = this.constructor.className;
         }
 
+        const lastChar = key.slice(-1);
+        ["*", "/"].forEach((char) => {
+            if (char === lastChar) {
+                throw new Error(`Model key shouldn't ending at "${char}".`);
+            }
+        });
+
+        const itemsPath = Model.getItemsPath(key);
         return new Promise((resolve, reject) => {
             const data = this.serialize();
 
-            AsyncStorage.setItem(key, data).then(() => {
+            storageProvider.setItem(key, data).then(() => {
+                if (itemsPath === null) {
+                    resolve();
+                } else {
+                    return storageProvider.getItem(itemsPath);
+                }
+            }).then((items) => {
+                if (items === undefined || items === null) {
+                    items = [];
+                }
+
+                if (items.indexOf(key) === -1) {
+                    items.push(key);
+                }
+
+                return storageProvider.setItem(itemsPath, items);
+            }).then(() => {
                 resolve();
             }).catch((error) => {
                 reject(error);
@@ -25,10 +59,29 @@ export default class Model extends ModelBase {
     }
 
     /**
-     * Read object from async storage.
+     * Get path of items.
+     * /example/items
+     * @param  {string} source path
+     * @return {Promise}
+     */
+    static getItemsPath(path) {
+        if (path.charAt(0) !== "/") {
+            return null;
+        }
+
+        const lastIndexOfSlash = path.lastIndexOf("/");
+        if (lastIndexOfSlash === -1) {
+            return null;
+        }
+
+        return path.slice(0, lastIndexOfSlash) + "/_items";
+    }
+
+    /**
+     * Read object from Storage.
      *
      * @static
-     * @param {string} key AsyncStorage key
+     * @param {string} key Storage key
      * @returns {Promise}
      */
     static restore(key) {
@@ -36,17 +89,87 @@ export default class Model extends ModelBase {
             key = this.className;
         }
 
+        const lastChar = key.slice(-1);
+        const itemsPath = Model.getItemsPath(key);
+
         return new Promise((resolve, reject) => {
-            AsyncStorage.getItem(key).then((data) => {
-                if (data === null) {
-                    resolve(null);
+            if (itemsPath !== null && lastChar === "*") {
+                storageProvider.getItem(itemsPath).then((itemKeys) => {
+                    if (itemKeys === null) {
+                        reject(new Error(`Key ${itemsPath} not found.`));
+                    }
+
+                    const itemsPromises = [];
+                    itemKeys.forEach((item) => {
+                        itemsPromises.push(storageProvider.getItem(item));
+                    });
+
+                    return Promise.all(itemsPromises);
+                }).then((itemsSerialized) => {
+                    const itemsDeserialized = [];
+                    itemsSerialized.forEach((item) => {
+                        itemsDeserialized.push(Model.deserialize(item));
+                    });
+
+                    resolve(itemsDeserialized);
+                }).catch((error) => {
+                    reject(error);
+                });
+            } else {
+                storageProvider.getItem(key).then((data) => {
+                    if (data === null) {
+                        resolve(null);
+                    } else {
+                        const deserialized = Model.deserialize(data);
+                        resolve(deserialized);
+                    }
+                }).catch((error) => {
+                    reject(error);
+                });
+            }
+        });
+    }
+
+    /**
+     * Remove element from storage and related value in _items array.
+     * @param  {string} key
+     * @return {Promise}
+     */
+    static remove(key) {
+        if (typeof(key) !== "string") {
+            key = this.className;
+        }
+
+        const itemsPath = Model.getItemsPath(key);
+        return new Promise((resolve, reject) => {
+            storageProvider.removeItem(key).then(() => {
+                if (itemsPath === null) {
+                    resolve();
                 } else {
-                    const deserialized = Model.deserialize(data);
-                    resolve(deserialized);
+                    return storageProvider.getItem(itemsPath);
                 }
-            }).catch((error) => {
-                reject(error);
+            }).then((items) => {
+                if (items === null) {
+                    resolve();
+                }
+
+                const itemIndex = items.indexOf(key);
+                if (itemIndex !== -1) {
+                    items.splice(itemIndex, 1);
+                }
+
+                if (items.length === 0) {
+                    return storageProvider.removeItem(itemsPath);
+                } else {
+                    return storageProvider.setItem(items, items);
+                }
+            }).then(() => {
+                resolve();
             });
         });
+    }
+
+    static get _storageProvider() {
+        return storageProvider;
     }
 }

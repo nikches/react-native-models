@@ -11,7 +11,45 @@ Implementation of the models for React Native.
 - setters/getters for model's properties;
 - verification of property types;
 - filling models from the state;
+- path like syntax for keys;
 - serialization/deserialization of Date and RegExp objects not supported yet. Instead of it should be used strings.
+
+### Methods
+```javascript
+constructor(properties: object): Model
+```
+
+```javascript
+store(key?:string): Promise
+```
+
+```javascript
+static restore(key?:string): Promise
+```
+
+```javascript
+static remove(key?:string): Promise
+```
+
+```javascript
+serialize(): string
+```
+
+```javascript
+static deserialize(): Model
+```
+
+```javascript
+populateFromState(state: object)
+```
+
+```javascript
+static fromState(state: object): Model
+```
+
+```javascript
+static require(constructor: Model)
+```
 
 ### Examples
 
@@ -19,16 +57,17 @@ Implementation of the models for React Native.
 ```javascript
 import Model from "react-native-models";
 
-class MyModel extends Model {
+export default class MyModel extends Model {
     // className used instead name because babel replaces him at run-time.
     static get className() {
         return "MyModel";
     }
 
-    constructor(a = 0, b = "foo") {
+    constructor(a = 0, b = "foo", c = new Model()) {
         super({
             a: "Number",
             b: "String",
+            c: "Model"   // Nested model
         });
 
         // Now MyModel has two members
@@ -37,10 +76,12 @@ class MyModel extends Model {
 
         this._a = a; // this._a === 0
         this._b = b; // this._b === "foo"
+        this._c = c; // this._c === instanceOf Model
 
         // or with validation of type
         this.setA(a);
         this.setB(b);
+        this.setC(c);
     }
 
     test() {
@@ -51,15 +92,17 @@ class MyModel extends Model {
         const b = this.getB(); // b === "bar"
 
         try {
-          this.setA("1");
+            this.setA("1");
         } catch (error) {
-          // error handling
+            return "exception";
         }
+
+        return "no exception";
     }
 }
 ```
 
-#### Store/restore in AsyncStorage
+#### Store/restore
 ```javascript
 const myModel = new MyModel();
 myModel.setA(10);
@@ -73,6 +116,28 @@ MyModel.restore().then((myModel) => {
     // ok
 }).catch((error) => {
     // handle error
+});
+```
+
+#### Store/restore (path like syntax)
+```
+const myModel = new MyModel(1, "My model");
+const anotherModel = new MyModel(2, "Another model");
+
+myModel.store("/myModel").then(() => {
+    return anotherModel.store("/anotherModel");
+}).then(() => {
+    MyModel.require(MyModel);
+    return MyModel.restore("/*");
+}).then((models) => {
+    const myModel = models[0];
+    const anotherModel = model[1];
+
+    // myModel.getA() === 1
+    // myModel.getB() === "My model"
+
+    // anotherModel.getA() === 2
+    // anotherModel.getB() === "Another model"
 });
 ```
 
@@ -112,7 +177,6 @@ const myModel2 = MyModel.deserialize(serialized);
 
 ### Testing
 ```
-npm install --save-dev
 echo '{ "presets": ["es2015"] }' > .babelrc
 npm test
 ```

@@ -1,11 +1,11 @@
-import ModelBase from "./ModelBase";
+import ModelBase from "../../ModelBase";
 
 export default class TestModel extends ModelBase {
     static get className() {
         return "TestModel";
     }
 
-    constructor( number = 0, string = "", boolean = false, object = {}, array = []) {
+    constructor(number = 0, string = "", boolean = false, object = {}, array = []) {
         super({
             number:    "Number",
             string:    "String",

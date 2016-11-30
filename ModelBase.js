@@ -1,6 +1,6 @@
 export default class ModelBase {
     static get _classNameKey() {
-        return "__REACT_NATIVE_MODELS_CLASS_NAME__";
+        return "__RNM_CLASS_NAME__";
     }
 
     /**
@@ -27,6 +27,10 @@ export default class ModelBase {
             }
 
             const propertyType = properties[propertyName];
+            if (ModelBase._checkType(propertyType, "String") === false) {
+                throw new TypeError(`${propertyName} type should be string.`);
+            }
+
             const privatePropertyName = "_" + propertyName;
             const propertyNameCapitalized =
                 propertyName.charAt(0).toUpperCase() +
@@ -78,7 +82,13 @@ export default class ModelBase {
     populateFromState(state) {
         // Create the instance of ModelBase which has property's types in closure.
         const constructor = ModelBase._getConstructor(this.constructor.className);
-        const typeCheckObject = new constructor();
+
+        let typeCheckObject = null;
+        try {
+            typeCheckObject = new constructor();
+        } catch (error) {
+            throw new Error(error.message + " May be you forget specify default value in constructor?");
+        }
 
         for (const propertyName in state) {
             if (ModelBase._isOwnProperty(propertyName, state) === false) {
@@ -111,10 +121,17 @@ export default class ModelBase {
      * @return {ModelBase}
      */
     static fromState(state, properties) {
-        const classConstructor = ModelBase._getConstructor(this.className);
-        const model = new classConstructor(properties);
-        model.populateFromState(state);
-        return model;
+        const constructor = ModelBase._getConstructor(this.className);
+
+        let instance = null;
+        try {
+            instance = new constructor(properties);
+        } catch (error) {
+            throw new Error(error.message + " May be you forget specify default value in constructor?");
+        }
+
+        instance.populateFromState(state);
+        return instance;
     }
 
     static _isOwnProperty(propertyName, object) {
@@ -223,9 +240,14 @@ export default class ModelBase {
         }
 
         const constructor = ModelBase._getConstructor(className);
-        const instance = new constructor();
-        const data = container["data"];
+        let instance = null;
+        try {
+            instance = new constructor();
+        } catch (error) {
+            throw new Error(error.message + " May be you forget specify default value in constructor?");
+        }
 
+        const data = container["data"];
         for (const key in data) {
             if (ModelBase._isOwnProperty(key, data) === false) {
                 continue;

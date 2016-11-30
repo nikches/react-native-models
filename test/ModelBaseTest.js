@@ -1,8 +1,9 @@
 import Assert    from "assert";
 import ModelBase from "../ModelBase";
-import TestModel from "../TestModel";
+import TestModel from "./models/TestModel";
 /* global describe */
 /* global it */
+/* global before */
 
 describe("ModelBase", () => {
     describe("constructor", () => {
@@ -15,6 +16,14 @@ describe("ModelBase", () => {
             Assert.throws(() => {
                 const modelBase = new ModelBase({
                     _property: "Number"
+                });
+            });
+        });
+
+        it("should throw error if property type is not a \"String\"", () => {
+            Assert.throws(() => {
+                const modelBase = new ModelBase({
+                    property: 0,
                 });
             });
         });
@@ -165,7 +174,6 @@ describe("ModelBase", () => {
                 modelBase: new ModelBase(),
             };
 
-            TestModel.require(TestModel);
             const testModel = TestModel.fromState(state);
         });
     });
@@ -216,9 +224,8 @@ describe("ModelBase", () => {
     });
 
     describe("_deserialize", () => {
-        TestModel.require(ModelBase);
         TestModel.require(TestModel);
-
+        TestModel.require(ModelBase);
         let testModel = new TestModel();
 
         let nestedModel = new ModelBase({
