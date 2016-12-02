@@ -15,41 +15,69 @@ Implementation of the models for React Native.
 - serialization/deserialization of Date and RegExp objects not supported yet. Instead of it should be used strings.
 
 ### Methods
+
+#### constructor
 ```javascript
 constructor(properties: object): Model
 ```
+Create instance of Model. Properties is a plain object:
+```javascript
+{
+    number:    "Number",
+    string:    "String",
+    boolean:   "Boolean",
+    object:    "Object",
+    array:     "Array",
+    modelBase: "Model",
+}
+```
 
+#### store
 ```javascript
 store(key?:string): Promise
 ```
-
+Save model in `Storage`. This method serialize model and all nested models. If key doesn't specified used `className` property. Key support path like syntax. For example:
+```javascript
+/book/0
+/book/1
+/book/2
+```
+#### restore
 ```javascript
 static restore(key?:string): Promise
 ```
-
+Restore model from `Storage`. If key doesn't specified using `className` property. If store models with keys `/book/0` and `/book/1`, possible to restore them by `/book/*` key.
+#### remove
 ```javascript
 static remove(key?:string): Promise
 ```
-
+Remove value from `Store` and related record in `_items` record.
+#### serialize
 ```javascript
 serialize(): string
 ```
-
+Serialize object.
+#### deserialize
 ```javascript
 static deserialize(): Model
 ```
-
+Deserialize object from string.
+#### populateFromState
 ```javascript
 populateFromState(state: object)
 ```
-
+Fill model's properties from given state.
+#### populateFromState
 ```javascript
 static fromState(state: object): Model
 ```
-
+Create new instance of `Model`. This method check type whenever set model's property.
+#### require
 ```javascript
 static require(constructor: Model)
 ```
+Bind class name with its constructor. Need for deserialization.
+
 
 ### Examples
 
