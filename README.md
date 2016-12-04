@@ -36,7 +36,7 @@ Create instance of Model. Properties is a plain object:
 ```javascript
 store(key?:string): Promise
 ```
-Save model in `Storage`. This method serialize model and all nested models. If key doesn't specified used `className` property. Key support path like syntax. For example:
+Save model in `Storage`. This method serialize model and all nested models. If key doesn't specified used `className` property. Key support path syntax. For example:
 ```javascript
 /book/0
 /book/1
@@ -67,7 +67,7 @@ Deserialize object from string.
 populateFromState(state: object)
 ```
 Fill model's properties from given state.
-#### populateFromState
+#### fromState
 ```javascript
 static fromState(state: object): Model
 ```
