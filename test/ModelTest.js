@@ -1,6 +1,6 @@
 import Assert from "assert";
 import AsyncStorageTestModel from "./models/AsyncStorageTestModel";
-import AsyncStorageMock      from "./models/AsyncStorageMock";
+import AsyncStorageMock from "./models/AsyncStorageMock";
 /* global describe */
 /* global it */
 

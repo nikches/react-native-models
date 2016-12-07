@@ -1,4 +1,4 @@
-import Assert       from "assert";
+import Assert from "assert";
 import ExampleModel from "./models/ExampleModel";
 /* global describe */
 /* global it */
