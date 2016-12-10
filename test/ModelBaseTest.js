@@ -31,21 +31,24 @@ describe("ModelBase", () => {
 
     describe("_checkType", () => {
         it("should return true if passed correct type", () => {
-            Assert.equal(ModelBase._checkType(1,                "Number"    ),   true);
-            Assert.equal(ModelBase._checkType(false,            "Boolean"   ),   true);
-            Assert.equal(ModelBase._checkType("string",         "String"    ),   true);
-            Assert.equal(ModelBase._checkType(() => {},         "Function"  ),   true);
-            Assert.equal(ModelBase._checkType({},               "Object"    ),   true);
-            Assert.equal(ModelBase._checkType([],               "Array"     ),   true);
-            Assert.equal(ModelBase._checkType(Object.create(null), "Object" ),   true);
-            Assert.equal(ModelBase._checkType(new Date(),       "Date"      ),   true);
-            Assert.equal(ModelBase._checkType(new RegExp(),     "RegExp"    ),   true);
-            Assert.equal(ModelBase._checkType(new ModelBase(),  "ModelBase" ),   true);
-            Assert.equal(ModelBase._checkType(new TestModel(),  "TestModel" ),   true);
-            Assert.equal(ModelBase._checkType(undefined,        "Undefined" ),   true);
-            Assert.equal(ModelBase._checkType(null,             "Null"      ),   true);
-            Assert.equal(ModelBase._checkType(undefined,        undefined   ),   false);
-            Assert.equal(ModelBase._checkType(new Function("return 0"), "Function"), true);
+            Assert.equal(ModelBase._checkType(1,                     "Number"    ),   true);
+            Assert.equal(ModelBase._checkType(false,                 "Boolean"   ),   true);
+            Assert.equal(ModelBase._checkType("string",              "String"    ),   true);
+            Assert.equal(ModelBase._checkType(() => {},              "Function"  ),   true);
+            Assert.equal(ModelBase._checkType({},                    "Object"    ),   true);
+            Assert.equal(ModelBase._checkType([],                    "Array"     ),   true);
+            Assert.equal(ModelBase._checkType(Object.create(null),   "Object"    ),   true);
+            Assert.equal(ModelBase._checkType(new Date(),            "Date"      ),   true);
+            Assert.equal(ModelBase._checkType(new RegExp(),          "RegExp"    ),   true);
+            Assert.equal(ModelBase._checkType(new ModelBase(),       "ModelBase" ),   true);
+            Assert.equal(ModelBase._checkType(new TestModel(),       "TestModel" ),   true);
+            Assert.equal(ModelBase._checkType(undefined,             "Undefined" ),   true);
+            Assert.equal(ModelBase._checkType(null,                  "Null"      ),   true);
+            Assert.equal(ModelBase._checkType(new Number(1),         "Number"    ),   true);
+            Assert.equal(ModelBase._checkType(new String("test"),    "String"    ),   true);
+            Assert.equal(ModelBase._checkType(new Boolean(false),    "Boolean"   ),   true);
+            Assert.equal(ModelBase._checkType(new Function("return 0"), "Function"),  true);
+            Assert.equal(ModelBase._checkType(undefined,             undefined   ),   false);
         });
     });
 
