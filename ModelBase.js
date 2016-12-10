@@ -156,17 +156,11 @@ export default class ModelBase {
         }
 
         if (value === null) {
-            return "Object";
+            return "Null";
         }
 
         if (value.constructor === undefined || value.constructor.className === undefined) {
-            const matches = Object.prototype.toString.call(value).match(/\[object (.+)\]/);
-
-            if (matches === null) {
-                throw new Error("Unknow type");
-            }
-
-            return matches[1];
+            return Object.prototype.toString.call(value).slice(8, -1);
         }
 
         return value.constructor.className;
