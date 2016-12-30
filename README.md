@@ -1,7 +1,7 @@
 # react-native-models
 Implementation of the models for React Native.
 
-### Features:
+## Features
 - serialization/deserialization and saving of models in AsyncStorage;
 - support of nested models;
 - setters/getters for model's properties;
@@ -10,13 +10,16 @@ Implementation of the models for React Native.
 - path like syntax for keys;
 - serialization/deserialization of Date and RegExp objects not supported yet. Instead of it should be used strings.
 
-### Methods
+## Methods
 
-#### constructor
+### constructor
+
 ```javascript
 constructor(properties: object): Model
 ```
+
 Create instance of Model. Properties is a plain object:
+
 ```javascript
 {
     number:    "Number",
@@ -28,56 +31,80 @@ Create instance of Model. Properties is a plain object:
 }
 ```
 
-#### store
+### store
+
 ```javascript
 store(key?:string): Promise
 ```
+
 Save model in `Storage`. This method serialize model and all nested models. If key doesn't specified used `className` property. Key support path syntax. For example:
+
 ```javascript
 /book/0
 /book/1
 /book/2
 ```
-#### restore
+
+### restore
+
 ```javascript
 static restore(key?:string): Promise
 ```
+
 Restore model from `Storage`. If key doesn't specified using `className` property. If store models with keys `/book/0` and `/book/1`, possible to restore them by `/book/*` key.
-#### remove
+
+### remove
+
 ```javascript
 static remove(key?:string): Promise
 ```
+
 Remove value from `Store` and related record in `_items` record.
-#### serialize
+
+### serialize
+
 ```javascript
 serialize(): string
 ```
+
 Serialize object.
-#### deserialize
+
+### deserialize
+
 ```javascript
 static deserialize(): Model
 ```
+
 Deserialize object from string.
-#### populateFromState
+
+### populateFromState
+
 ```javascript
 populateFromState(state: object)
 ```
+
 Fill model's properties from given state.
-#### fromState
+
+### fromState
+
 ```javascript
 static fromState(state: object): Model
 ```
+
 Create new instance of `Model`. This method check type whenever set model's property.
-#### require
+
+### require
+
 ```javascript
 static require(constructor: Model)
 ```
+
 Bind class name with its constructor. Need for deserialization.
 
+## Examples
 
-### Examples
+### Properties
 
-#### Properties
 ```javascript
 import Model from "react-native-models";
 
@@ -126,7 +153,8 @@ export default class MyModel extends Model {
 }
 ```
 
-#### Store/restore
+### Store/restore
+
 ```javascript
 const myModel = new MyModel();
 myModel.setA(10);
@@ -143,7 +171,8 @@ MyModel.restore().then((myModel) => {
 });
 ```
 
-#### Store/restore (path like syntax)
+### Store/restore (path like syntax)
+
 ```javascript
 const myModel = new MyModel(1, "My model");
 const anotherModel = new MyModel(2, "Another model");
@@ -165,7 +194,7 @@ myModel.store("/myModel").then(() => {
 });
 ```
 
-#### Filling state
+### Filling state
 
 ```javascript
 import React from "react";
@@ -194,18 +223,21 @@ export default class MyComponent extends React.Component {
 }
 ```
 
-#### Serialization/deserialization
+### Serialization/deserialization
+
 ```javascript
 const myModel = new MyModel();
 const serialized = myModel.serialize();
 const myModel2 = MyModel.deserialize(serialized);
 ```
 
-### Testing
+## Testing
+
 ```
 echo '{ "presets": ["es2015"] }' > .babelrc
 npm test
 ```
 
-### License
+## License
+
 [MIT](https://opensource.org/licenses/MIT)
