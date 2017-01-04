@@ -167,7 +167,7 @@ export default class Model extends ModelBase {
                 if (items.length === 0) {
                     return storageProvider.removeItem(itemsPath);
                 } else {
-                    return storageProvider.setItem(items, JSON.stringify(items));
+                    return storageProvider.setItem(itemsPath, JSON.stringify(items));
                 }
             }).then(() => {
                 resolve();
